@@ -1,0 +1,15 @@
+#!/bin/bash
+
+#BSUB -q {{ queue }}
+#BSUB -o {{ job_id }}.sam
+#BSUB -J bwa_{{ job_id }}
+#BSUB -e bwa_{{ job_id}}.err
+#BSUB -n {{ threads }}
+
+BWA={{ bwa_path }}
+REF={{ reference }}
+
+R1={{ pair[0] }}
+R2={{ pair[1] }}
+
+$BWA mem -M -t {{ threads }} $REF $R1 $R2 
