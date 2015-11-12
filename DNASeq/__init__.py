@@ -34,7 +34,7 @@ class Reads:
         for pair in self.fastqs:
             job_id = "%s_L%s" % (self.sample, lane)
             lane  += 1
-            with open("%s.lsf_job" % job_id, 'w') as job_file:
+            with open("%s/%s.lsf_job" % (jobs_path, job_id), 'w') as job_file:
                 job_file.write(template.render( job_id    = job_id,
                                                 bwa_path  = self.paths['bwa'],
                                                 pair      = pair,
