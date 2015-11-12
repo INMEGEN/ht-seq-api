@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#BSUB -q {{ queue }}
+#BSUB -o fastqc_{{ job_id }}.out
+#BSUB -J fastqc_{{ job_id }}
+#BSUB -e fastqc_{{ job_id}}.err
+#BSUB -n {{ threads }}
+
+FASTQC={{ fastqc_path }}
+
+R1={{ pair[0] }}
+R2={{ pair[1] }}
+
+$FASTQC -t {{ threads }} $R1 $R2 -o {{ fastqc_outdir }}

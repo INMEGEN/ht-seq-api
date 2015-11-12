@@ -5,7 +5,7 @@ from DNASeq import *
 # Capture our current directory
 #THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
-ROOT_PATH = u'/home/rgarcia/MCAC/'
+ROOT_PATH = u'/Users/hachepunto/test/'
 
 reads_s01 = Reads(sample="S01")
 
@@ -26,4 +26,5 @@ reads_s01.create_bwa_lsf_jobs( queue     = 'high',
 
 reads_s01.create_fastqc_lsf_jobs( queue     = 'high',
                                   threads   = 16,
-                                  jobs_path = ROOT_PATH + 'jobs')
+                                  jobs_path = ROOT_PATH + 'jobs',
+                                  fastqc_outdir = '/mnt/f/rgarcia/MCAC/fastq/500/')

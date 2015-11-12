@@ -27,7 +27,7 @@ class Reads:
         self.paths['fastqc'] = which('fastqc')        
 
 
-    def create_fastqc_lsf_jobs(self, queue, threads, jobs_path):
+    def create_fastqc_lsf_jobs(self, queue, threads, jobs_path, fastqc_outdir):
         template = self.env.get_template('fastqc.lsf')
 
         lane = 0
@@ -40,7 +40,7 @@ class Reads:
                                                 pair      = pair,
                                                 queue     = queue,
                                                 threads   = threads,
-                                                jobs_path = jobs_path ))
+                                                fastqc_outdir = fastqc_outdir ))
                                
 
 
