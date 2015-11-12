@@ -27,6 +27,23 @@ class Reads:
         self.paths['fastqc'] = which('fastqc')        
 
 
+    def create_fastqc_lsf_jobs(self, queue, threads, jobs_path):
+        template = self.env.get_template('fastqc.lsf')
+
+        lane = 0
+        for pair in self.fastqs:
+            job_id = "%s_L%s" % (self.sample, lane)
+            lane  += 1
+            with open("%s/fastqc_%s.lsf_job" % (jobs_path, job_id), 'w') as job_file:
+                job_file.write(template.render( job_id    = job_id,
+                                                fastqc_path  = self.paths['fastqc'],
+                                                pair      = pair,
+                                                queue     = queue,
+                                                threads   = threads,
+                                                jobs_path = jobs_path ))
+                               
+
+
     def create_bwa_lsf_jobs(self, queue, threads, reference, jobs_path):
         template = self.env.get_template('bwa.lsf')
 
@@ -34,7 +51,7 @@ class Reads:
         for pair in self.fastqs:
             job_id = "%s_L%s" % (self.sample, lane)
             lane  += 1
-            with open("%s/%s.lsf_job" % (jobs_path, job_id), 'w') as job_file:
+            with open("%s/bwa_%s.lsf_job" % (jobs_path, job_id), 'w') as job_file:
                 job_file.write(template.render( job_id    = job_id,
                                                 bwa_path  = self.paths['bwa'],
                                                 pair      = pair,
@@ -44,6 +61,7 @@ class Reads:
                                                 jobs_path = jobs_path ))
                                
 
+                
     def rename_files(self):
         pass
         

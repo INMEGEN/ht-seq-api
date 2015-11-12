@@ -24,3 +24,6 @@ reads_s01.create_bwa_lsf_jobs( queue     = 'high',
 
 
 
+reads_s01.create_fastqc_lsf_jobs( queue     = 'high',
+                                  threads   = 16,
+                                  jobs_path = ROOT_PATH + 'jobs')
