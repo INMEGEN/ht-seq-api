@@ -1,0 +1,14 @@
+#!/bin/bash
+#BSUB -q {{ queue }}
+#BSUB -o snpeff_{{ job_id }}.vcf
+#BSUB -J snpeff_{{ job_id }}
+#BSUB -e snpeff_{{ job_id}}.err
+#BSUB -n {{ threads }}
+
+
+{{ java_path }} -Xmx16g \
+   -jar {{ snpeff_jar_path }} \
+        -t {{ threads }} \
+        -v \
+        -s {{ job_id}}_snpeff_stats.html \
+        {{ genome }} {{ vcf_path }}

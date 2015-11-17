@@ -1,0 +1,8 @@
+#!/bin/bash
+
+{{ java_path }} -Xmx16g \
+      -jar {{ snpeff_jar_path }} \
+        -t \
+        -v \
+        -s {{ outdir }}/{{ job_id}}_snpeff_stats.html \
+        {{ genome }} {{ vcf_path }} > {{ outdir }}/{{ job_id }}_snpeff.vcf

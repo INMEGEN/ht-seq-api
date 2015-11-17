@@ -97,3 +97,64 @@ class PredictedEffects:
         # self.paths['mongo_etl'] = which('vep.pl')
 
 
+
+
+
+
+class Variants:
+    paths  = {}
+   
+    def __init__(self, sample, vcf_path=None, reference=None, genome=None):
+        self.sample   = sample
+        self.vcf_path = vcf_path
+        self.reference = reference
+        self.genome    = genome        
+        self.env      = Environment(loader=PackageLoader('DNASeq'))
+        self.discover_paths()
+
+    def discover_paths(self):
+        self.paths['java']   = which('java')
+        self.paths['snpeff'] = None
+        self.paths['vep']    = which('variant_effect_predictor.pl')        
+
+    def sniff_reference(self):
+        '''
+        reads vcf header to determine path to reference and it's genome
+        '''
+        pass
+    
+    def create_snpeff_lsf_job(self, queue, threads, jobs_path, outdir):
+        template = self.env.get_template('snpeff.lsf')
+        job_id   = "%s" % (self.sample)
+        with open("%s/snpeff_%s.lsf_job" % (jobs_path, job_id), 'w') as job_file:
+            job_file.write(template.render( job_id          = job_id,
+                                            java_path       = self.paths['java'],
+                                            snpeff_jar_path = self.paths['snpeff'],
+                                            vcf_path        = self.vcf_path,
+                                            queue           = queue,
+                                            threads         = threads,
+                                            genome          = self.genome,
+                                            outdir          = outdir))
+
+
+
+    def create_snpeff_local_job(self, threads, jobs_path, outdir):
+        template = self.env.get_template('snpeff.local')
+        job_id   = "%s" % (self.sample)
+        with open("%s/snpeff_%s.sh" % (jobs_path, job_id), 'w') as job_file:
+            job_file.write(template.render( job_id          = job_id,
+                                            java_path       = self.paths['java'],
+                                            snpeff_jar_path = self.paths['snpeff'],
+                                            vcf_path        = self.vcf_path,
+                                            threads         = threads,
+                                            genome          = self.genome,
+                                            outdir          = outdir))
+            
+
+
+    # def create_vep_lsf_jobs(self, queue, threads, reference, jobs_path):
+    #     template = self.env.get_template('vep.lsf')
+                               
+
+
+        
