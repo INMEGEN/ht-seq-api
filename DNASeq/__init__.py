@@ -1,4 +1,4 @@
-from sh import which
+from sh import which, mkdir, ln
 from jinja2 import Environment, PackageLoader
 
 
@@ -6,11 +6,12 @@ from jinja2 import Environment, PackageLoader
 
 class Sample:
 
-    def __init__(self, sample):
-        self.sample = sample
+    def __init__(self, id, path):
+        self.id   = id
+        self.path = path
 
     def __unicode__(self):
-        return "%s" % self.sample
+        return "%s %s" % (self.sample, self.path)
 
 
         
@@ -19,6 +20,8 @@ class Reads:
    
     def __init__(self, sample):
         self.sample = sample
+
+        self.jobs_path = "%/jobs" % sample.path
         self.env = Environment(loader=PackageLoader('DNASeq'))
         self.discover_paths()
         
@@ -27,14 +30,13 @@ class Reads:
         self.paths['fastqc'] = which('fastqc')        
 
 
-    def create_fastqc_lsf_jobs(self, queue, threads, jobs_path, fastqc_outdir):
+    def create_fastqc_lsf_jobs(self, queue, threads):
         template = self.env.get_template('fastqc.lsf')
 
         lane = 0
         for pair in self.fastqs:
-            job_id = "%s_L%s" % (self.sample, lane)
-            lane  += 1
-            with open("%s/fastqc_%s.lsf_job" % (jobs_path, job_id), 'w') as job_file:
+            job_id = "qualimap_%s" % self.sample
+            with open("%s/%s.lsf_job" % (self.jobs_path, job_id), 'w') as job_file:
                 job_file.write(template.render( job_id    = job_id,
                                                 fastqc_path  = self.paths['fastqc'],
                                                 pair      = pair,
@@ -68,33 +70,47 @@ class Reads:
 
 class SequenceAlignmentMap:
     paths  = {}
+    status = "bam"
     
-    def __init__(self):
-        self.status = []
+    def __init__(self, sample):
+        self.sample   = sample
+        self.jobs_dir = "%s/jobs" % sample.path
+        mkdir('-p', self.jobs_dir)
+        self.qc_dir   = "%s/qc" % sample.path
+        self.sam_path = "%s/maps/%s.%s" % (sample.path, sample.id, self.status)
+        
+        self.env       = Environment(loader=PackageLoader('DNASeq'))
+        self.discover_paths()
 
+
+    def discover_paths(self):
+        self.paths['freebayes'] = which('freebayes')
+        self.paths['samtools']  = which('samtools')
+        self.paths['java']      = which('java')
+        self.paths['qualimap']  = which('qualimap')
+
+    def link_import_sam(self, path):
+        mkdir('-p', "%s/maps" % self.sample.path)
+        ln('-s', path, self.sam_path)
 
     def sniff_metadata():
         pass
 
-    def discover_paths(self):
-        self.paths['freebayes'] = which('freebayes')
-        self.paths['samtools'] = which('samtools')
-        self.paths['java'] = which('java')
-        self.paths['qualimap'] = which('qualimap')        
-
-
-    def create_qualimap_lsf_job(self, queue, threads, reference, jobs_path):
-        template = self.env.get_template('qualimap.lsf')
-        job_id = "%s" % (self.sample)
         
-        with open("%s/bwa_%s.lsf_job" % (jobs_path, job_id), 'w') as job_file:
+    def create_qualimap_lsf_job(self, queue, threads, outformat='HTML'):
+        template = self.env.get_template('qualimap.lsf')
+        job_id = "qualimap_%s" % (self.sample.id)
+        mkdir('-p', self.qc_dir)
+        
+        with open("%s/%s.lsf_job" % (self.jobs_dir, job_id), 'w') as job_file:
             job_file.write(template.render( job_id    = job_id,
-                                            bwa_path  = self.paths['bwa'],
-                                            pair      = pair,
                                             queue     = queue,
                                             threads   = threads,
-                                            reference = reference,
-                                            jobs_path = jobs_path ))
+                                            qualimap  = self.paths['qualimap'],
+                                            sam       = self.sam_path,
+                                            outformat = outformat,
+                                            outdir    = "%s/qualimap" % self.qc_dir ))
+
 
 
         

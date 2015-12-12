@@ -1,13 +1,16 @@
 #!/bin/bash
 
+#BSUB -J {{ job_id }}
 #BSUB -q {{ queue }}
-#BSUB -o {{ job_id }}.log
-#BSUB -J qm_{{ job_id }}
-#BSUB -e qm_{{ job_id}}.err
 #BSUB -n {{ threads }}
 
-QUALIMAP={{ qualimap_path }}
 
-BAM={{ bam }}
+#BSUB -o {{ job_id }}.log
+#BSUB -e qm_{{ job_id}}.err
 
-$QUALIMAP bamqc -c --outformat HTML -bam $BAM -outdir {{ outdir }}
+
+QUALIMAP={{ qualimap }}
+
+SAM={{ sam }}
+
+$QUALIMAP bamqc -c --outformat {{outformat}} -bam $SAM -outdir {{ outdir }}
