@@ -66,8 +66,9 @@ class Reads:
         pass
         
 
-class SequenceAlignmentMaps:
-
+class SequenceAlignmentMap:
+    paths  = {}
+    
     def __init__(self):
         self.status = []
 
@@ -81,7 +82,22 @@ class SequenceAlignmentMaps:
         self.paths['java'] = which('java')
         self.paths['qualimap'] = which('qualimap')        
 
-    
+
+    def create_qualimap_lsf_job(self, queue, threads, reference, jobs_path):
+        template = self.env.get_template('qualimap.lsf')
+        job_id = "%s" % (self.sample)
+        
+        with open("%s/bwa_%s.lsf_job" % (jobs_path, job_id), 'w') as job_file:
+            job_file.write(template.render( job_id    = job_id,
+                                            bwa_path  = self.paths['bwa'],
+                                            pair      = pair,
+                                            queue     = queue,
+                                            threads   = threads,
+                                            reference = reference,
+                                            jobs_path = jobs_path ))
+
+
+        
 class VariantCalls:
 
     def discover_paths(self):
