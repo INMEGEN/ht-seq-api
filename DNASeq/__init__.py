@@ -89,9 +89,14 @@ class SequenceAlignmentMap:
         self.paths['java']      = which('java')
         self.paths['qualimap']  = which('qualimap')
 
-    def link_import_sam(self, path):
+    def import_map(self, path, mode='symlink'):
+        """
+        will populate the maps dir with a SAM or BAM file.
+        TODO: other modes might be: copy, move
+        """
         mkdir('-p', "%s/maps" % self.sample.path)
-        ln('-s', path, self.sam_path)
+        if mode == 'symlink':
+            ln('-s', path, self.sam_path)
 
     def sniff_metadata():
         pass
